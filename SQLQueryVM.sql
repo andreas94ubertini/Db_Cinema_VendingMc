@@ -173,3 +173,34 @@ END;
 EXEC RecordTransaction
 @idDisributore = 1,
 @idProd = 1;
+
+--Creare una stored procedure ScheduleMaintenance per programmare un intervento di
+--manutenzione su un distributore, specificando l'ID del distributore e la data della manutenzione.DROP PROCEDURE IF EXISTS ScheduleMaintenanceCREATE PROCEDURE ScheduleMaintenance
+	@idDisributore INT,
+	@newdate DATE,
+	@description TEXT
+
+AS
+BEGIN
+
+	BEGIN TRY
+		IF(@newdate > CURRENT_TIMESTAMP)
+		BEGIN
+			INSERT INTO Maintenance (VendingMachineID, MaintenanceDate, Description)
+			VALUES (@idDisributore, @newdate, @description);
+		END
+		ELSE
+		BEGIN
+
+			PRINT 'Data non valida'
+		END
+	END TRY
+	BEGIN CATCH
+		PRINT 'Errore: ' + ERROR_MESSAGE()
+	END CATCH
+END;
+
+EXEC ScheduleMaintenance
+@idDisributore = 1,
+@newdate = '2024-03-25',
+@description = 'Prova SP';
