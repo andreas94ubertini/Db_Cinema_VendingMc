@@ -1,3 +1,5 @@
+use vendingMachine;
+
 CREATE TABLE VendingMachine (
     VendingMachineID INT PRIMARY KEY IDENTITY(1,1) ,
     Location VARCHAR(255) NOT NULL,
@@ -32,6 +34,15 @@ CREATE TABLE Maintenance (
     Description TEXT,
     FOREIGN KEY (VendingMachineID) REFERENCES VendingMachine(VendingMachineID)
 );
+DROP TABLE IF EXISTS VendingM_Prodotto;
+CREATE TABLE VendingM_Prodotto(
+	VendingMachineID INT NOT NULL,
+	ProductID INT NOT NULL,
+	ProductQt INT CHECK (ProductQt > 0),
+	FOREIGN KEY (VendingMachineID) REFERENCES VendingMachine(VendingMachineID),
+    FOREIGN KEY (ProductID) REFERENCES Product(ProductID),
+	PRIMARY KEY (VendingMachineID, ProductID)
+)
 
 
 -- Inserisci una nuova macchina distributrice
@@ -106,3 +117,29 @@ FROM VendingMachine
 JOIN Maintenance ON VendingMachine.VendingMachineID = Maintenance.VendingMachineID
 JOIN ScheduledMaintenanceNext ON VendingMachine.VendingMachineID = ScheduledMaintenanceNext.VendingMachineID
 ORDER BY MaintenanceDate DESC OFFSET 1 ROW;
+
+--Implementare una stored procedure RefillProduct che consenta di aggiungere scorte di un
+--prodotto specifico in un distributore, richiedendo l'ID del distributore, l'ID del prodotto e la
+--quantità da aggiungere.
+
+CREATE PROCEDURE InsertProdotto
+	@idDisributore INT,
+	@idProd INT,
+	@qtProd int
+AS
+BEGIN
+	BEGIN TRY
+		BEGIN TRANSACTION
+
+			INSERT INTO VendingM_Prodotto (VendingMachineID, ProductID, ProductQt) VALUES
+			(@idDisributore, @idProd, @qtProd);
+
+		COMMIT TRANSACTION
+	END TRY
+	BEGIN CATCH
+		ROLLBACK
+
+		PRINT 'Errore: ' + ERROR_MESSAGE()
+	END CATCH
+END;
+

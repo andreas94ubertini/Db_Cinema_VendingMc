@@ -117,7 +117,7 @@ BEGIN TRY
 	IF(@action = 1)
 		BEGIN
 			DELETE FROM Showtime WHERE ShowtimeID = @idShowTime
-			IF @@ROWCOUNT < 0
+			IF @@ROWCOUNT > 0
 			PRINT 'Spettacolo eliminato';
 		END
 	ELSE IF (@action = 2)
