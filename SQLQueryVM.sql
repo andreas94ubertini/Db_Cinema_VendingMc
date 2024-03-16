@@ -143,3 +143,33 @@ BEGIN
 	END CATCH
 END;
 
+--Sviluppare una stored procedure RecordTransaction che registri una nuova transazione,
+--includendo l'ID del distributore, l'ID del prodotto e l'importo pagato, aggiornando
+--contemporaneamente la quantità disponibile del prodotto.
+
+CREATE PROCEDURE RecordTransaction
+	@idDisributore INT,
+	@idProd INT
+AS
+BEGIN
+	DECLARE @Price DECIMAL(10,2)
+	SELECT @Price = Product.Price FROM Product
+	WHERE ProductID = @idProd
+	IF @@ROWCOUNT > 0
+	BEGIN TRY
+		BEGIN TRANSACTION
+			INSERT INTO Trs (VendingMachineID, ProductID, TransactionDateTime, Amount)
+			VALUES (@idDisributore, @idProd, CURRENT_TIMESTAMP, @Price);	
+			UPDATE Product SET StockQuantity = StockQuantity -1
+			WHERE ProductID = @idProd
+		COMMIT TRANSACTION
+	END TRY
+	BEGIN CATCH
+		ROLLBACK
+
+		PRINT 'Errore: ' + ERROR_MESSAGE()
+	END CATCH
+END;
+EXEC RecordTransaction
+@idDisributore = 1,
+@idProd = 1;
