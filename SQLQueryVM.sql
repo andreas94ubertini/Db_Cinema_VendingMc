@@ -201,6 +201,34 @@ BEGIN
 END;
 
 EXEC ScheduleMaintenance
-@idDisributore = 1,
+@idDisributore = 10,
 @newdate = '2024-03-25',
 @description = 'Prova SP';
+
+--Implementare una stored procedure UpdateProductPrice che permetta di aggiornare il prezzo di
+--un prodotto specifico, richiedendo l'ID del prodotto e il nuovo prezzo.
+
+CREATE PROCEDURE UpdateProductPrice
+	@idProduct INT,
+	@newPrice DECIMAL (10,2)
+
+AS
+BEGIN
+
+	BEGIN TRY
+		IF(@newPrice > 0)
+		BEGIN
+		UPDATE Product
+		SET Price = @newPrice WHERE ProductID = @idProduct
+		END
+		ELSE
+		BEGIN
+
+			PRINT 'Inserisci un importo valido'
+		END
+	END TRY
+	BEGIN CATCH
+		PRINT 'Errore: ' + ERROR_MESSAGE()
+	END CATCH
+END;
+
