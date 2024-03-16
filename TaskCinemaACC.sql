@@ -125,7 +125,7 @@ BEGIN TRY
 			UPDATE Showtime 
 			SET ShowDateTime = @newShowDateTime
 			WHERE ShowtimeID = @idShowTime
-			IF @@ROWCOUNT < 0
+			IF @@ROWCOUNT > 0
 			PRINT 'Spettacolo aggiornato';
 		END
 	ELSE IF (@action = 3)
